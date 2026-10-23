@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>CyberSnake Arcade</title>
+  <title>Culebrita - Giancarlito</title>
 
   <!-- Mobile & PWA Meta Tags -->
-  <meta name="theme-color" content="#0f172a">
+  <meta name="theme-color" content="#090d16">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="description" content="Sleek retro-modern cyber snake arcade game designed for Android & mobile web.">
+  <meta name="description" content="Culebrita - Arcade snake game with wall wrap-around. Created by Giancarlito.">
 
-  <!-- Embedded Web App Manifest -->
-  <link rel="manifest" href="data:application/manifest+json;utf-8,%7B%22name%22%3A%22CyberSnake%20Arcade%22%2C%22short_name%22%3A%22CyberSnake%22%2C%22description%22%3A%22Retro%20Arcade%20Snake%20Game%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%230f172a%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Butf8%2C%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20100'%3E%3Crect%20width%3D'100'%20height%3D'100'%20rx%3D'20'%20fill='%230f172a'%2F%3E%3Ccircle%20cx%3D'30'%20cy%3D'50'%20r%3D'16'%20fill='%2310b981'%2F%3E%3Ccircle%20cx%3D'65'%20cy%3D'50'%20r%3D'14'%20fill='%2306b6d4'%2F%3E%3Ccircle%20cx%3D'75'%20cy%3D'35'%20r%3D'8'%20fill='%23f43f5e'%2F%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22192x192%20512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+  <!-- Embedded Web App Manifest for GitHub Pages / Android Install -->
+  <link rel="manifest" href="data:application/manifest+json;utf-8,%7B%22name%22%3A%22Culebrita%22%2C%22short_name%22%3A%22Culebrita%22%2C%22description%22%3A%22Culebrita%20by%20Giancarlito%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23090d16%22%2C%22theme_color%22%3A%22%23090d16%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Butf8%2C%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20100'%3E%3Crect%20width%3D'100'%20height%3D'100'%20rx%3D'24'%20fill='%23090d16'%2F%3E%3Ccircle%20cx%3D'30'%20cy%3D'50'%20r%3D'16'%20fill='%2310b981'%2F%3E%3Ccircle%20cx%3D'58'%20cy%3D'50'%20r%3D'14'%20fill='%2306b6d4'%2F%3E%3Ccircle%20cx%3D'76'%20cy%3D'38'%20r%3D'9'%20fill='%23f43f5e'%2F%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22192x192%20512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -22,17 +22,15 @@
       theme: {
         extend: {
           colors: {
-            cyberDark: '#0b0f19',
-            cyberCard: '#131b2e',
+            culebritaDark: '#090d16',
             neonGreen: '#10b981',
             neonCyan: '#06b6d4',
             neonPink: '#f43f5e',
-            neonAmber: '#f59e0b'
+            neonGold: '#fbbf24'
           },
           boxShadow: {
-            'glow-green': '0 0 20px rgba(16, 185, 129, 0.45)',
-            'glow-pink': '0 0 20px rgba(244, 63, 94, 0.45)',
-            'glow-cyan': '0 0 15px rgba(6, 182, 212, 0.35)'
+            'glow-snake': '0 0 25px rgba(16, 185, 129, 0.45)',
+            'portal-glow': 'inset 0 0 15px rgba(6, 182, 212, 0.35)'
           }
         }
       }
@@ -40,7 +38,6 @@
   </script>
 
   <style>
-    /* Prevent rubber-banding and selection on mobile touch */
     * {
       -webkit-touch-callout: none;
       -webkit-user-select: none;
@@ -48,86 +45,102 @@
       touch-action: manipulation;
     }
     body {
-      background: radial-gradient(circle at 50% 20%, #1e293b 0%, #0b0f19 85%);
+      background: radial-gradient(circle at 50% 12%, #1a2236 0%, #080c14 90%);
       min-height: 100dvh;
     }
     .touch-btn:active {
-      transform: scale(0.92);
-      filter: brightness(1.2);
+      transform: scale(0.91);
+      filter: brightness(1.25);
     }
-    /* Grid scanline background effect */
+    /* Subtle CRT arcade scanline effect */
     .scanlines {
       background: linear-gradient(
-        rgba(18, 24, 38, 0) 50%, 
-        rgba(0, 0, 0, 0.3) 50%
+        rgba(15, 23, 42, 0) 50%, 
+        rgba(0, 0, 0, 0.28) 50%
       ), linear-gradient(
         90deg,
         rgba(255, 0, 0, 0.02),
         rgba(0, 255, 0, 0.01),
-        rgba(0, 0, 255, 0.02)
+        rgba(0, 255, 0, 0.02)
       );
       background-size: 100% 4px, 6px 100%;
     }
+    /* Subtle portal edge glow indicating passable boundaries */
+    .portal-border {
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.25), inset 0 0 12px rgba(6, 182, 212, 0.2);
+    }
   </style>
 </head>
-<body class="text-slate-100 flex flex-col items-center justify-between p-3 select-none overflow-x-hidden font-sans">
+<body class="text-slate-100 flex flex-col items-center justify-between p-2 select-none overflow-x-hidden font-sans">
 
-  <!-- Top App Bar -->
-  <header class="w-full max-w-md flex items-center justify-between py-2 px-1">
-    <div class="flex items-center space-x-2">
-      <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 font-black text-lg">
-        🐍
+  <!-- Header with Brand Logo & Subtitle -->
+  <header class="w-full max-w-md flex flex-col items-center justify-center pt-1 pb-2 px-2">
+    <!-- Top Bar actions -->
+    <div class="w-full flex items-center justify-between mb-1">
+      <!-- Portal Status Badge -->
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-cyan-950/80 text-cyan-300 border border-cyan-500/30">
+        <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+        Walls: Passable
+      </span>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center space-x-2">
+        <!-- Sound Toggle -->
+        <button id="soundToggle" title="Toggle Audio" class="p-2 rounded-xl bg-slate-800/80 border border-slate-700 active:scale-95 transition text-emerald-400 hover:bg-slate-700/80">
+          <svg id="soundIconOn" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+          </svg>
+          <svg id="soundIconOff" class="w-4 h-4 hidden text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
+          </svg>
+        </button>
+
+        <!-- Fullscreen -->
+        <button id="fsToggle" title="Fullscreen" class="p-2 rounded-xl bg-slate-800/80 border border-slate-700 active:scale-95 transition text-slate-300 hover:bg-slate-700/80">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+          </svg>
+        </button>
+
+        <!-- Pause / Play -->
+        <button id="pauseToggle" title="Pause / Resume" class="p-2 rounded-xl bg-slate-800/80 border border-slate-700 active:scale-95 transition text-cyan-400 hover:bg-slate-700/80">
+          <svg id="pauseIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <svg id="playIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </button>
       </div>
-      <h1 class="text-lg font-extrabold tracking-wider bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-        CYBERSNAKE
-      </h1>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="flex items-center space-x-2">
-      <!-- Audio Toggle -->
-      <button id="soundToggle" class="p-2 rounded-xl bg-slate-800/80 border border-slate-700 active:scale-95 transition text-emerald-400 hover:bg-slate-700/80">
-        <svg id="soundIconOn" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
-        </svg>
-        <svg id="soundIconOff" class="w-5 h-5 hidden text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
-        </svg>
-      </button>
-
-      <!-- Fullscreen Button -->
-      <button id="fsToggle" class="p-2 rounded-xl bg-slate-800/80 border border-slate-700 active:scale-95 transition text-slate-300 hover:bg-slate-700/80">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
-        </svg>
-      </button>
-
-      <!-- Pause/Resume -->
-      <button id="pauseToggle" class="p-2 rounded-xl bg-slate-800/80 border border-slate-700 active:scale-95 transition text-cyan-400 hover:bg-slate-700/80">
-        <svg id="pauseIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <svg id="playIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-      </button>
+    <!-- LOGO AND BRANDING -->
+    <div class="text-center select-none pt-0.5">
+      <h1 class="text-3xl sm:text-4xl font-black tracking-wider uppercase bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent drop-shadow-sm leading-none">
+        «Culebrita»
+      </h1>
+      <p class="text-[11px] sm:text-xs font-medium tracking-widest text-slate-400 mt-1 uppercase flex items-center justify-center gap-1.5">
+        <span class="w-4 h-px bg-slate-700"></span>
+        created by <span class="font-bold text-cyan-400">Giancarlito</span>
+        <span class="w-4 h-px bg-slate-700"></span>
+      </p>
     </div>
   </header>
 
   <!-- Score Board & Difficulty -->
-  <section class="w-full max-w-md grid grid-cols-3 gap-2 my-1">
-    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-2.5 text-center shadow-inner">
+  <section class="w-full max-w-md grid grid-cols-3 gap-2 my-1 px-1">
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2 text-center shadow-inner">
       <span class="text-[10px] tracking-wider uppercase text-slate-400 font-bold block">Score</span>
       <span id="scoreVal" class="text-2xl font-black text-emerald-400">0</span>
     </div>
 
-    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-2.5 text-center shadow-inner">
-      <span class="text-[10px] tracking-wider uppercase text-slate-400 font-bold block">Best</span>
-      <span id="highScoreVal" class="text-2xl font-black text-neonAmber">0</span>
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2 text-center shadow-inner">
+      <span class="text-[10px] tracking-wider uppercase text-slate-400 font-bold block">High Score</span>
+      <span id="highScoreVal" class="text-2xl font-black text-amber-400">0</span>
     </div>
 
-    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-2 flex flex-col justify-center items-center">
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2 flex flex-col justify-center items-center">
       <span class="text-[10px] tracking-wider uppercase text-slate-400 font-bold block mb-1">Speed</span>
       <select id="diffSelect" class="bg-slate-800 text-xs font-semibold text-cyan-300 rounded-lg px-2 py-1 outline-none border border-slate-700 text-center w-full">
         <option value="casual">Casual</option>
@@ -137,25 +150,29 @@
     </div>
   </section>
 
-  <!-- Canvas Container with Glassmorphism Border -->
-  <main class="relative w-full max-w-md flex items-center justify-center my-auto">
-    <div class="relative w-full aspect-square max-w-[360px] max-h-[360px] rounded-2xl overflow-hidden p-1 bg-gradient-to-b from-slate-700/50 to-slate-900/90 shadow-2xl border border-slate-700/60">
+  <!-- Canvas Container with Cyan Portal Border Effect -->
+  <main class="relative w-full max-w-md flex items-center justify-center my-auto px-1">
+    <div class="relative w-full aspect-square max-w-[360px] max-h-[360px] rounded-2xl overflow-hidden p-1 bg-gradient-to-b from-cyan-950/40 via-slate-900 to-slate-950 portal-border border-2 border-cyan-500/40 shadow-2xl">
       <canvas id="gameCanvas" class="w-full h-full rounded-xl bg-slate-950 scanlines block cursor-pointer"></canvas>
 
-      <!-- In-canvas Notification / State Overlays -->
-      <div id="overlay" class="absolute inset-0 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 transition-all duration-300">
-        <div id="overlayBadge" class="px-3 py-1 text-xs font-bold uppercase tracking-widest text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 rounded-full mb-3">Ready</div>
-        <h2 id="overlayTitle" class="text-2xl font-black tracking-wide text-white mb-2">CYBERSNAKE</h2>
-        <p id="overlaySub" class="text-xs text-slate-400 text-center mb-5 max-w-[220px]">Swipe or use D-pad to guide the cyber snake and collect power nodes.</p>
-        <button id="startBtn" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-extrabold text-sm tracking-wider uppercase shadow-glow-green active:scale-95 transition">
-          Launch Game
+      <!-- Overlay States (Ready / Game Over / Paused) -->
+      <div id="overlay" class="absolute inset-0 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 transition-all duration-300 rounded-xl">
+        <div id="overlayBadge" class="px-3 py-1 text-xs font-bold uppercase tracking-widest text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 rounded-full mb-2">
+          Ready to Slither
+        </div>
+        <h2 id="overlayTitle" class="text-3xl font-black tracking-wide text-white mb-1">CULEBRITA</h2>
+        <p id="overlaySub" class="text-xs text-slate-400 text-center mb-5 max-w-[240px]">
+          Walls are open! Travel through borders freely. Only watch out for your own tail!
+        </p>
+        <button id="startBtn" class="px-7 py-3 rounded-xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-slate-950 font-black text-sm tracking-widest uppercase shadow-glow-snake active:scale-95 transition">
+          Play Now
         </button>
       </div>
     </div>
   </main>
 
-  <!-- Touch Controls: Mobile Ergonomic D-Pad -->
-  <footer class="w-full max-w-md flex flex-col items-center justify-center mt-2 pb-2">
+  <!-- Mobile On-Screen D-Pad & Gestures -->
+  <footer class="w-full max-w-md flex flex-col items-center justify-center mt-1 pb-1">
     <div class="grid grid-cols-3 gap-2 w-48 sm:w-52 aspect-square">
       <div></div>
       <button id="btnUp" class="touch-btn flex items-center justify-center rounded-2xl bg-slate-800/90 border border-slate-700 text-cyan-400 shadow-md">
@@ -171,11 +188,11 @@
         </svg>
       </button>
 
-      <button id="btnRestart" title="Quick Reset" class="touch-btn flex flex-col items-center justify-center rounded-2xl bg-slate-900 border border-rose-500/30 text-rose-400 shadow-sm active:bg-rose-950/40">
+      <button id="btnRestart" title="Quick Restart" class="touch-btn flex flex-col items-center justify-center rounded-2xl bg-slate-900 border border-rose-500/30 text-rose-400 shadow-sm active:bg-rose-950/40">
         <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
         </svg>
-        <span class="text-[9px] font-bold uppercase tracking-wider">Reset</span>
+        <span class="text-[9px] font-bold uppercase tracking-wider">Restart</span>
       </button>
 
       <button id="btnRight" class="touch-btn flex items-center justify-center rounded-2xl bg-slate-800/90 border border-slate-700 text-cyan-400 shadow-md">
@@ -193,12 +210,12 @@
       <div></div>
     </div>
     <div class="text-[11px] text-slate-500 font-medium mt-1">
-      Supports swipe gestures anywhere on screen
+      Swipe canvas or tap D-pad to steer
     </div>
   </footer>
 
   <script>
-    // --- Audio Synthesizer (Web Audio API) ---
+    // --- Web Audio Synthesizer (No external sound files) ---
     class SoundFX {
       constructor() {
         this.ctx = null;
@@ -232,6 +249,25 @@
           osc.stop(now + 0.13);
         } catch(e){}
       }
+      playPortalWrap() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          const now = this.ctx.currentTime;
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.exponentialRampToValueAtTime(300, now + 0.08);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.linearRampToValueAtTime(0.001, now + 0.08);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.085);
+        } catch(e){}
+      }
       playDie() {
         if (!this.enabled) return;
         this.init();
@@ -242,8 +278,8 @@
           osc.type = 'sawtooth';
           const now = this.ctx.currentTime;
           osc.frequency.setValueAtTime(220, now);
-          osc.frequency.linearRampToValueAtTime(55, now + 0.35);
-          gain.gain.setValueAtTime(0.4, now);
+          osc.frequency.linearRampToValueAtTime(50, now + 0.35);
+          gain.gain.setValueAtTime(0.38, now);
           gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
@@ -261,24 +297,24 @@
           osc.type = 'sine';
           const now = this.ctx.currentTime;
           osc.frequency.setValueAtTime(320, now);
-          gain.gain.setValueAtTime(0.08, now);
-          gain.gain.linearRampToValueAtTime(0.001, now + 0.04);
+          gain.gain.setValueAtTime(0.06, now);
+          gain.gain.linearRampToValueAtTime(0.001, now + 0.035);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
-          osc.stop(now + 0.045);
+          osc.stop(now + 0.04);
         } catch(e){}
       }
     }
 
-    // --- Vibration / Haptics ---
+    // --- Android Haptic Feedback ---
     function vibrate(pattern) {
       if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
         try { navigator.vibrate(pattern); } catch(e){}
       }
     }
 
-    // --- Game Logic & Variables ---
+    // --- Game Setup ---
     const sound = new SoundFX();
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -299,9 +335,7 @@
     const pauseIcon = document.getElementById('pauseIcon');
     const playIcon = document.getElementById('playIcon');
 
-    // Canvas coordinate space
-    const GRID_SIZE = 20; // 20x20 tiles
-    let tileCount = 20;
+    const GRID_SIZE = 20; // 20x20 Toroid Grid
     let tileSize = 18;
 
     let snake = [];
@@ -309,7 +343,7 @@
     let dir = { x: 0, y: 0 };
     let nextDir = { x: 0, y: 0 };
     let score = 0;
-    let highScore = parseInt(localStorage.getItem('cyberSnake_highScore') || '0', 10);
+    let highScore = parseInt(localStorage.getItem('culebrita_highScore') || '0', 10);
     highScoreValEl.textContent = highScore;
 
     let gameState = 'START'; // 'START', 'RUNNING', 'PAUSED', 'GAMEOVER'
@@ -360,7 +394,7 @@
 
     function setDirection(dx, dy) {
       if (gameState !== 'RUNNING') return;
-      // Prevent 180 reverse
+      // Prevent reversing into itself
       if (dx !== 0 && dir.x === -dx) return;
       if (dy !== 0 && dir.y === -dy) return;
       if (nextDir.x !== dx || nextDir.y !== dy) {
@@ -371,15 +405,35 @@
 
     function update() {
       dir = { ...nextDir };
-      const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+      let newX = snake[0].x + dir.x;
+      let newY = snake[0].y + dir.y;
 
-      // Wall collision
-      if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
-        gameOver();
-        return;
+      // PASS-THROUGH WALLS (Toroidal Screen Wrap)
+      let wrapped = false;
+      if (newX < 0) {
+        newX = GRID_SIZE - 1;
+        wrapped = true;
+      } else if (newX >= GRID_SIZE) {
+        newX = 0;
+        wrapped = true;
       }
 
-      // Self collision
+      if (newY < 0) {
+        newY = GRID_SIZE - 1;
+        wrapped = true;
+      } else if (newY >= GRID_SIZE) {
+        newY = 0;
+        wrapped = true;
+      }
+
+      if (wrapped) {
+        sound.playPortalWrap();
+        vibrate(15);
+      }
+
+      const head = { x: newX, y: newY };
+
+      // Self-collision only (Snake cannot bite itself)
       if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
         gameOver();
         return;
@@ -387,17 +441,17 @@
 
       snake.unshift(head);
 
-      // Check food
+      // Food collection
       if (head.x === food.x && head.y === food.y) {
         score += 10;
         scoreValEl.textContent = score;
         if (score > highScore) {
           highScore = score;
           highScoreValEl.textContent = highScore;
-          localStorage.setItem('cyberSnake_highScore', highScore);
+          localStorage.setItem('culebrita_highScore', highScore);
         }
         sound.playEat();
-        vibrate(35); // Short haptic tick
+        vibrate(40);
         spawnFood();
       } else {
         snake.pop();
@@ -407,12 +461,14 @@
     function gameOver() {
       gameState = 'GAMEOVER';
       sound.playDie();
-      vibrate([60, 40, 100]); // Game over buzz pattern
+      vibrate([60, 40, 110]);
 
       overlayBadge.textContent = 'GAME OVER';
-      overlayBadge.className = 'px-3 py-1 text-xs font-bold uppercase tracking-widest text-rose-300 bg-rose-500/20 border border-rose-500/30 rounded-full mb-3';
+      overlayBadge.className = 'px-3 py-1 text-xs font-bold uppercase tracking-widest text-rose-300 bg-rose-500/20 border border-rose-500/30 rounded-full mb-2';
       overlayTitle.textContent = `Score: ${score}`;
-      overlaySub.textContent = score >= highScore ? '🔥 New High Score! Outstanding reflex!' : 'Direct impact detected. Try again!';
+      overlaySub.textContent = score >= highScore && score > 0 
+        ? '🏆 Record Achieved! Giancarlito salutes your reflexes!' 
+        : 'Tail bite detected! Remember, you can pass through walls anytime!';
       startBtn.textContent = 'Play Again';
       overlay.classList.remove('hidden');
       updatePauseUI();
@@ -421,15 +477,22 @@
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Render grid dots for retro aesthetic
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+      // Visual portal grid cues on borders
+      ctx.fillStyle = 'rgba(6, 182, 212, 0.08)';
+      ctx.fillRect(0, 0, canvas.width, 2);
+      ctx.fillRect(0, canvas.height - 2, canvas.width, 2);
+      ctx.fillRect(0, 0, 2, canvas.height);
+      ctx.fillRect(canvas.width - 2, 0, 2, canvas.height);
+
+      // Subtle background grid points
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.035)';
       for (let i = 0; i < GRID_SIZE; i++) {
         for (let j = 0; j < GRID_SIZE; j++) {
           ctx.fillRect(i * tileSize + tileSize / 2 - 1, j * tileSize + tileSize / 2 - 1, 2, 2);
         }
       }
 
-      // Draw Food (Glowing Orb)
+      // Draw Apple/Food (Glowing pulse orb)
       food.pulse += 0.08;
       const pulseRadius = (tileSize / 2.3) + Math.sin(food.pulse) * 1.5;
       const fx = food.x * tileSize + tileSize / 2;
@@ -437,13 +500,13 @@
 
       ctx.save();
       ctx.shadowColor = '#f43f5e';
-      ctx.shadowBlur = 12;
+      ctx.shadowBlur = 14;
       ctx.fillStyle = '#f43f5e';
       ctx.beginPath();
       ctx.arc(fx, fy, Math.max(3, pulseRadius), 0, Math.PI * 2);
       ctx.fill();
 
-      // Food core highlight
+      // Apple specular highlight
       ctx.fillStyle = '#ffe4e6';
       ctx.beginPath();
       ctx.arc(fx - 1, fy - 1, pulseRadius * 0.45, 0, Math.PI * 2);
@@ -454,19 +517,19 @@
       snake.forEach((seg, i) => {
         const x = seg.x * tileSize;
         const y = seg.y * tileSize;
-        const pad = 1.5;
+        const pad = 1.2;
 
         ctx.save();
         if (i === 0) {
-          // Head
+          // Head (Neon Emerald with Eyes)
           ctx.fillStyle = '#34d399';
           ctx.shadowColor = '#10b981';
-          ctx.shadowBlur = 14;
+          ctx.shadowBlur = 16;
           roundRect(ctx, x + pad, y + pad, tileSize - pad * 2, tileSize - pad * 2, 6);
           ctx.fill();
 
-          // Cyber Eyes
-          ctx.fillStyle = '#022c22';
+          // Eyes
+          ctx.fillStyle = '#064e3b';
           const eyeSize = 3;
           let eye1 = { x: x + 5, y: y + 5 };
           let eye2 = { x: x + tileSize - 8, y: y + 5 };
@@ -483,7 +546,7 @@
           ctx.fillRect(eye1.x, eye1.y, eyeSize, eyeSize);
           ctx.fillRect(eye2.x, eye2.y, eyeSize, eyeSize);
         } else {
-          // Body gradient segments
+          // Body segments with fading luminosity
           const ratio = 1 - (i / snake.length) * 0.45;
           ctx.fillStyle = `rgba(16, 185, 129, ${ratio})`;
           roundRect(ctx, x + pad, y + pad, tileSize - pad * 2, tileSize - pad * 2, 4);
@@ -507,7 +570,7 @@
       ctx.closePath();
     }
 
-    // Main Game Loop
+    // Main Loop
     function gameLoop(timestamp) {
       if (!lastRenderTime) lastRenderTime = timestamp;
       const delta = timestamp - lastRenderTime;
@@ -525,7 +588,7 @@
       requestAnimationFrame(gameLoop);
     }
 
-    // --- State Controls ---
+    // --- State Handlers ---
     function startGame() {
       sound.init();
       initGame();
@@ -538,9 +601,9 @@
       if (gameState === 'RUNNING') {
         gameState = 'PAUSED';
         overlayBadge.textContent = 'PAUSED';
-        overlayBadge.className = 'px-3 py-1 text-xs font-bold uppercase tracking-widest text-cyan-300 bg-cyan-500/20 border border-cyan-500/30 rounded-full mb-3';
-        overlayTitle.textContent = 'MISSION HALTED';
-        overlaySub.textContent = 'Take a breath. Press resume to continue.';
+        overlayBadge.className = 'px-3 py-1 text-xs font-bold uppercase tracking-widest text-cyan-300 bg-cyan-500/20 border border-cyan-500/30 rounded-full mb-2';
+        overlayTitle.textContent = 'PAUSED';
+        overlaySub.textContent = 'Catch your breath. Walls are open when you resume.';
         startBtn.textContent = 'Resume';
         overlay.classList.remove('hidden');
       } else if (gameState === 'PAUSED') {
@@ -562,7 +625,7 @@
       }
     }
 
-    // --- Interaction Listeners ---
+    // --- Control Listeners ---
     startBtn.addEventListener('click', () => {
       if (gameState === 'PAUSED') {
         gameState = 'RUNNING';
@@ -604,13 +667,13 @@
       }
     });
 
-    // --- On-screen D-Pad Taps ---
+    // Touch D-Pad buttons
     document.getElementById('btnUp').addEventListener('pointerdown', (e) => { e.preventDefault(); setDirection(0, -1); });
     document.getElementById('btnDown').addEventListener('pointerdown', (e) => { e.preventDefault(); setDirection(0, 1); });
     document.getElementById('btnLeft').addEventListener('pointerdown', (e) => { e.preventDefault(); setDirection(-1, 0); });
     document.getElementById('btnRight').addEventListener('pointerdown', (e) => { e.preventDefault(); setDirection(1, 0); });
 
-    // --- Keyboard Arrow & WASD Support ---
+    // Keyboard support (WASD & Arrow Keys)
     window.addEventListener('keydown', (e) => {
       switch (e.key) {
         case 'ArrowUp':
@@ -634,10 +697,10 @@
       }
     });
 
-    // --- Touch Swipe Gestures (Direct screen control) ---
+    // Swipe gestures on canvas and touch devices
     let touchStartX = 0;
     let touchStartY = 0;
-    const minSwipeDist = 24;
+    const minSwipeDist = 22;
 
     window.addEventListener('touchstart', (e) => {
       if (e.touches.length > 0) {
@@ -656,11 +719,9 @@
 
       if (Math.max(Math.abs(diffX), Math.abs(diffY)) > minSwipeDist) {
         if (Math.abs(diffX) > Math.abs(diffY)) {
-          // Horizontal
           if (diffX > 0) setDirection(1, 0);
           else setDirection(-1, 0);
         } else {
-          // Vertical
           if (diffY > 0) setDirection(0, 1);
           else setDirection(0, -1);
         }
@@ -669,7 +730,6 @@
       touchStartY = 0;
     }, { passive: true });
 
-    // Launch loop on ready
     window.onload = function() {
       resizeCanvas();
       requestAnimationFrame(gameLoop);
