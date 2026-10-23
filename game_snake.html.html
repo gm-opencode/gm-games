@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>CyberSnake Arcade</title>
+
+  <!-- Mobile & PWA Meta Tags -->
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="description" content="Sleek retro-modern cyber snake arcade game designed for Android & mobile web.">
+
+  <!-- Embedded Web App Manifest -->
+  <link rel="manifest" href="data:application/manifest+json;utf-8,%7B%22name%22%3A%22CyberSnake%20Arcade%22%2C%22short_name%22%3A%22CyberSnake%22%2C%22description%22%3A%22Retro%20Arcade%20Snake%20Game%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%230f172a%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Butf8%2C%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20100'%3E%3Crect%20width%3D'100'%20height%3D'100'%20rx%3D'20'%20fill='%230f172a'%2F%3E%3Ccircle%20cx%3D'30'%20cy%3D'50'%20r%3D'16'%20fill='%2310b981'%2F%3E%3Ccircle%20cx%3D'65'%20cy%3D'50'%20r%3D'14'%20fill='%2306b6d4'%2F%3E%3Ccircle%20cx%3D'75'%20cy%3D'35'%20r%3D'8'%20fill='%23f43f5e'%2F%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22192x192%20512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cyberDark: '#0b0f19',
+            cyberCard: '#131b2e',
+            neonGreen: '#10b981',
+            neonCyan: '#06b6d4',
+            neonPink: '#f43f5e',
+            neonAmber: '#f59e0b'
+          },
+          boxShadow: {
+            'glow-green': '0 0 20px rgba(16, 185, 129, 0.45)',
+            'glow-pink': '0 0 20px rgba(244, 63, 94, 0.45)',
+            'glow-cyan': '0 0 15px rgba(6, 182, 212, 0.35)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Prevent rubber-banding and selection on mobile touch */
+    * {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    body {
+      background: radial-gradient(circle at 50% 20%, #1e293b 0%, #0b0f19 85%);
+      min-height: 100dvh;
+    }
+    .touch-btn:active {
+      transform: scale(0.92);
+      filter: brightness(1.2);
+    }
+    /* Grid scanline background effect */
+    .scanlines {
+      background: linear-gradient(
+        rgba(18, 24, 38, 0) 50%, 
+        rgba(0, 0, 0, 0.3) 50%
+      ), linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 0.02),
+        rgba(0, 255, 0, 0.01),
+        rgba(0, 0, 255, 0.02)
+      );
+      background-size: 100% 4px, 6px 100%;
+    }
+  </style>
+</head>
+<body class="text-slate-100 flex flex-col items-center justify-between p-3 select-none overflow-x-hidden font-sans">
+
+  <!-- Top App Bar -->
+  <header class="w-full max-w-md flex items-center justify-between py-2 px-1">
+    <div class="flex items-center space-x-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 font-black text-lg">
+        🐍
+      </div>
+      <h1 class="text-lg font-extrabold tracking-wider bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+        CYBERSNAKE
+      </h1>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="flex items-center space-x-2">
+      <!-- Audio Toggle -->
+      <button id="soundToggle" class="p-2 rounded-xl bg-slate-800/80 border border-slate-700 active:scale-95 transition text-emerald-400 hover:bg-slate-700/80">
+        <svg id="soundIconOn" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+        </svg>
+        <svg id="soundIconOff" class="w-5 h-5 hidden text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
+        </svg>
+      </button>
+
+      <!-- Fullscreen Button -->
+      <button id="fsToggle" class="p-2 rounded-xl bg-slate-800/80 border border-slate-700 active:scale-95 transition text-slate-300 hover:bg-slate-700/80">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+        </svg>
+      </button>
+
+      <!-- Pause/Resume -->
+      <button id="pauseToggle" class="p-2 rounded-xl bg-slate-800/80 border border-slate-700 active:scale-95 transition text-cyan-400 hover:bg-slate-700/80">
+        <svg id="pauseIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <svg id="playIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Score Board & Difficulty -->
+  <section class="w-full max-w-md grid grid-cols-3 gap-2 my-1">
+    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-2.5 text-center shadow-inner">
+      <span class="text-[10px] tracking-wider uppercase text-slate-400 font-bold block">Score</span>
+      <span id="scoreVal" class="text-2xl font-black text-emerald-400">0</span>
+    </div>
+
+    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-2.5 text-center shadow-inner">
+      <span class="text-[10px] tracking-wider uppercase text-slate-400 font-bold block">Best</span>
+      <span id="highScoreVal" class="text-2xl font-black text-neonAmber">0</span>
+    </div>
+
+    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-2 flex flex-col justify-center items-center">
+      <span class="text-[10px] tracking-wider uppercase text-slate-400 font-bold block mb-1">Speed</span>
+      <select id="diffSelect" class="bg-slate-800 text-xs font-semibold text-cyan-300 rounded-lg px-2 py-1 outline-none border border-slate-700 text-center w-full">
+        <option value="casual">Casual</option>
+        <option value="classic" selected>Classic</option>
+        <option value="fast">Turbo</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- Canvas Container with Glassmorphism Border -->
+  <main class="relative w-full max-w-md flex items-center justify-center my-auto">
+    <div class="relative w-full aspect-square max-w-[360px] max-h-[360px] rounded-2xl overflow-hidden p-1 bg-gradient-to-b from-slate-700/50 to-slate-900/90 shadow-2xl border border-slate-700/60">
+      <canvas id="gameCanvas" class="w-full h-full rounded-xl bg-slate-950 scanlines block cursor-pointer"></canvas>
+
+      <!-- In-canvas Notification / State Overlays -->
+      <div id="overlay" class="absolute inset-0 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 transition-all duration-300">
+        <div id="overlayBadge" class="px-3 py-1 text-xs font-bold uppercase tracking-widest text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 rounded-full mb-3">Ready</div>
+        <h2 id="overlayTitle" class="text-2xl font-black tracking-wide text-white mb-2">CYBERSNAKE</h2>
+        <p id="overlaySub" class="text-xs text-slate-400 text-center mb-5 max-w-[220px]">Swipe or use D-pad to guide the cyber snake and collect power nodes.</p>
+        <button id="startBtn" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-extrabold text-sm tracking-wider uppercase shadow-glow-green active:scale-95 transition">
+          Launch Game
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Touch Controls: Mobile Ergonomic D-Pad -->
+  <footer class="w-full max-w-md flex flex-col items-center justify-center mt-2 pb-2">
+    <div class="grid grid-cols-3 gap-2 w-48 sm:w-52 aspect-square">
+      <div></div>
+      <button id="btnUp" class="touch-btn flex items-center justify-center rounded-2xl bg-slate-800/90 border border-slate-700 text-cyan-400 shadow-md">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/>
+        </svg>
+      </button>
+      <div></div>
+
+      <button id="btnLeft" class="touch-btn flex items-center justify-center rounded-2xl bg-slate-800/90 border border-slate-700 text-cyan-400 shadow-md">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+
+      <button id="btnRestart" title="Quick Reset" class="touch-btn flex flex-col items-center justify-center rounded-2xl bg-slate-900 border border-rose-500/30 text-rose-400 shadow-sm active:bg-rose-950/40">
+        <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        <span class="text-[9px] font-bold uppercase tracking-wider">Reset</span>
+      </button>
+
+      <button id="btnRight" class="touch-btn flex items-center justify-center rounded-2xl bg-slate-800/90 border border-slate-700 text-cyan-400 shadow-md">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+
+      <div></div>
+      <button id="btnDown" class="touch-btn flex items-center justify-center rounded-2xl bg-slate-800/90 border border-slate-700 text-cyan-400 shadow-md">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div></div>
+    </div>
+    <div class="text-[11px] text-slate-500 font-medium mt-1">
+      Supports swipe gestures anywhere on screen
+    </div>
+  </footer>
+
+  <script>
+    // --- Audio Synthesizer (Web Audio API) ---
+    class SoundFX {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playEat() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          const now = this.ctx.currentTime;
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.13);
+        } catch(e){}
+      }
+      playDie() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          const now = this.ctx.currentTime;
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.linearRampToValueAtTime(55, now + 0.35);
+          gain.gain.setValueAtTime(0.4, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.36);
+        } catch(e){}
+      }
+      playTurn() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          const now = this.ctx.currentTime;
+          osc.frequency.setValueAtTime(320, now);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.linearRampToValueAtTime(0.001, now + 0.04);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.045);
+        } catch(e){}
+      }
+    }
+
+    // --- Vibration / Haptics ---
+    function vibrate(pattern) {
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        try { navigator.vibrate(pattern); } catch(e){}
+      }
+    }
+
+    // --- Game Logic & Variables ---
+    const sound = new SoundFX();
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const scoreValEl = document.getElementById('scoreVal');
+    const highScoreValEl = document.getElementById('highScoreVal');
+    const diffSelect = document.getElementById('diffSelect');
+    const overlay = document.getElementById('overlay');
+    const overlayBadge = document.getElementById('overlayBadge');
+    const overlayTitle = document.getElementById('overlayTitle');
+    const overlaySub = document.getElementById('overlaySub');
+    const startBtn = document.getElementById('startBtn');
+    const soundToggle = document.getElementById('soundToggle');
+    const soundIconOn = document.getElementById('soundIconOn');
+    const soundIconOff = document.getElementById('soundIconOff');
+    const fsToggle = document.getElementById('fsToggle');
+    const pauseToggle = document.getElementById('pauseToggle');
+    const pauseIcon = document.getElementById('pauseIcon');
+    const playIcon = document.getElementById('playIcon');
+
+    // Canvas coordinate space
+    const GRID_SIZE = 20; // 20x20 tiles
+    let tileCount = 20;
+    let tileSize = 18;
+
+    let snake = [];
+    let food = { x: 5, y: 5, pulse: 0 };
+    let dir = { x: 0, y: 0 };
+    let nextDir = { x: 0, y: 0 };
+    let score = 0;
+    let highScore = parseInt(localStorage.getItem('cyberSnake_highScore') || '0', 10);
+    highScoreValEl.textContent = highScore;
+
+    let gameState = 'START'; // 'START', 'RUNNING', 'PAUSED', 'GAMEOVER'
+    let lastRenderTime = 0;
+    let accumulatedTime = 0;
+
+    // Difficulty Speeds (Interval in ms)
+    const SPEED_MAP = {
+      casual: 120,
+      classic: 85,
+      fast: 55
+    };
+    let stepInterval = SPEED_MAP.classic;
+
+    function resizeCanvas() {
+      const containerWidth = canvas.parentElement.clientWidth;
+      const size = Math.min(containerWidth, 400);
+      canvas.width = size;
+      canvas.height = size;
+      tileSize = canvas.width / GRID_SIZE;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function initGame() {
+      snake = [
+        { x: 10, y: 10 },
+        { x: 9, y: 10 },
+        { x: 8, y: 10 }
+      ];
+      dir = { x: 1, y: 0 };
+      nextDir = { x: 1, y: 0 };
+      score = 0;
+      scoreValEl.textContent = '0';
+      stepInterval = SPEED_MAP[diffSelect.value] || SPEED_MAP.classic;
+      spawnFood();
+    }
+
+    function spawnFood() {
+      let valid = false;
+      while (!valid) {
+        food.x = Math.floor(Math.random() * GRID_SIZE);
+        food.y = Math.floor(Math.random() * GRID_SIZE);
+        valid = !snake.some(segment => segment.x === food.x && segment.y === food.y);
+      }
+      food.pulse = 0;
+    }
+
+    function setDirection(dx, dy) {
+      if (gameState !== 'RUNNING') return;
+      // Prevent 180 reverse
+      if (dx !== 0 && dir.x === -dx) return;
+      if (dy !== 0 && dir.y === -dy) return;
+      if (nextDir.x !== dx || nextDir.y !== dy) {
+        sound.playTurn();
+      }
+      nextDir = { x: dx, y: dy };
+    }
+
+    function update() {
+      dir = { ...nextDir };
+      const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+      // Wall collision
+      if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
+        gameOver();
+        return;
+      }
+
+      // Self collision
+      if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
+        gameOver();
+        return;
+      }
+
+      snake.unshift(head);
+
+      // Check food
+      if (head.x === food.x && head.y === food.y) {
+        score += 10;
+        scoreValEl.textContent = score;
+        if (score > highScore) {
+          highScore = score;
+          highScoreValEl.textContent = highScore;
+          localStorage.setItem('cyberSnake_highScore', highScore);
+        }
+        sound.playEat();
+        vibrate(35); // Short haptic tick
+        spawnFood();
+      } else {
+        snake.pop();
+      }
+    }
+
+    function gameOver() {
+      gameState = 'GAMEOVER';
+      sound.playDie();
+      vibrate([60, 40, 100]); // Game over buzz pattern
+
+      overlayBadge.textContent = 'GAME OVER';
+      overlayBadge.className = 'px-3 py-1 text-xs font-bold uppercase tracking-widest text-rose-300 bg-rose-500/20 border border-rose-500/30 rounded-full mb-3';
+      overlayTitle.textContent = `Score: ${score}`;
+      overlaySub.textContent = score >= highScore ? '🔥 New High Score! Outstanding reflex!' : 'Direct impact detected. Try again!';
+      startBtn.textContent = 'Play Again';
+      overlay.classList.remove('hidden');
+      updatePauseUI();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Render grid dots for retro aesthetic
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+      for (let i = 0; i < GRID_SIZE; i++) {
+        for (let j = 0; j < GRID_SIZE; j++) {
+          ctx.fillRect(i * tileSize + tileSize / 2 - 1, j * tileSize + tileSize / 2 - 1, 2, 2);
+        }
+      }
+
+      // Draw Food (Glowing Orb)
+      food.pulse += 0.08;
+      const pulseRadius = (tileSize / 2.3) + Math.sin(food.pulse) * 1.5;
+      const fx = food.x * tileSize + tileSize / 2;
+      const fy = food.y * tileSize + tileSize / 2;
+
+      ctx.save();
+      ctx.shadowColor = '#f43f5e';
+      ctx.shadowBlur = 12;
+      ctx.fillStyle = '#f43f5e';
+      ctx.beginPath();
+      ctx.arc(fx, fy, Math.max(3, pulseRadius), 0, Math.PI * 2);
+      ctx.fill();
+
+      // Food core highlight
+      ctx.fillStyle = '#ffe4e6';
+      ctx.beginPath();
+      ctx.arc(fx - 1, fy - 1, pulseRadius * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Draw Snake
+      snake.forEach((seg, i) => {
+        const x = seg.x * tileSize;
+        const y = seg.y * tileSize;
+        const pad = 1.5;
+
+        ctx.save();
+        if (i === 0) {
+          // Head
+          ctx.fillStyle = '#34d399';
+          ctx.shadowColor = '#10b981';
+          ctx.shadowBlur = 14;
+          roundRect(ctx, x + pad, y + pad, tileSize - pad * 2, tileSize - pad * 2, 6);
+          ctx.fill();
+
+          // Cyber Eyes
+          ctx.fillStyle = '#022c22';
+          const eyeSize = 3;
+          let eye1 = { x: x + 5, y: y + 5 };
+          let eye2 = { x: x + tileSize - 8, y: y + 5 };
+          if (dir.x === 1) {
+            eye1 = { x: x + tileSize - 6, y: y + 4 };
+            eye2 = { x: x + tileSize - 6, y: y + tileSize - 7 };
+          } else if (dir.x === -1) {
+            eye1 = { x: x + 4, y: y + 4 };
+            eye2 = { x: x + 4, y: y + tileSize - 7 };
+          } else if (dir.y === 1) {
+            eye1 = { x: x + 4, y: y + tileSize - 6 };
+            eye2 = { x: x + tileSize - 7, y: y + tileSize - 6 };
+          }
+          ctx.fillRect(eye1.x, eye1.y, eyeSize, eyeSize);
+          ctx.fillRect(eye2.x, eye2.y, eyeSize, eyeSize);
+        } else {
+          // Body gradient segments
+          const ratio = 1 - (i / snake.length) * 0.45;
+          ctx.fillStyle = `rgba(16, 185, 129, ${ratio})`;
+          roundRect(ctx, x + pad, y + pad, tileSize - pad * 2, tileSize - pad * 2, 4);
+          ctx.fill();
+        }
+        ctx.restore();
+      });
+    }
+
+    function roundRect(ctx, x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    // Main Game Loop
+    function gameLoop(timestamp) {
+      if (!lastRenderTime) lastRenderTime = timestamp;
+      const delta = timestamp - lastRenderTime;
+      lastRenderTime = timestamp;
+
+      if (gameState === 'RUNNING') {
+        accumulatedTime += delta;
+        if (accumulatedTime >= stepInterval) {
+          update();
+          accumulatedTime = 0;
+        }
+      }
+
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    // --- State Controls ---
+    function startGame() {
+      sound.init();
+      initGame();
+      gameState = 'RUNNING';
+      overlay.classList.add('hidden');
+      updatePauseUI();
+    }
+
+    function togglePause() {
+      if (gameState === 'RUNNING') {
+        gameState = 'PAUSED';
+        overlayBadge.textContent = 'PAUSED';
+        overlayBadge.className = 'px-3 py-1 text-xs font-bold uppercase tracking-widest text-cyan-300 bg-cyan-500/20 border border-cyan-500/30 rounded-full mb-3';
+        overlayTitle.textContent = 'MISSION HALTED';
+        overlaySub.textContent = 'Take a breath. Press resume to continue.';
+        startBtn.textContent = 'Resume';
+        overlay.classList.remove('hidden');
+      } else if (gameState === 'PAUSED') {
+        gameState = 'RUNNING';
+        overlay.classList.add('hidden');
+      } else if (gameState === 'START' || gameState === 'GAMEOVER') {
+        startGame();
+      }
+      updatePauseUI();
+    }
+
+    function updatePauseUI() {
+      if (gameState === 'RUNNING') {
+        pauseIcon.classList.remove('hidden');
+        playIcon.classList.add('hidden');
+      } else {
+        pauseIcon.classList.add('hidden');
+        playIcon.classList.remove('hidden');
+      }
+    }
+
+    // --- Interaction Listeners ---
+    startBtn.addEventListener('click', () => {
+      if (gameState === 'PAUSED') {
+        gameState = 'RUNNING';
+        overlay.classList.add('hidden');
+        updatePauseUI();
+      } else {
+        startGame();
+      }
+    });
+
+    pauseToggle.addEventListener('click', togglePause);
+
+    document.getElementById('btnRestart').addEventListener('click', () => {
+      vibrate(20);
+      startGame();
+    });
+
+    diffSelect.addEventListener('change', () => {
+      stepInterval = SPEED_MAP[diffSelect.value] || SPEED_MAP.classic;
+    });
+
+    soundToggle.addEventListener('click', () => {
+      sound.enabled = !sound.enabled;
+      if (sound.enabled) {
+        soundIconOn.classList.remove('hidden');
+        soundIconOff.classList.add('hidden');
+        sound.init();
+      } else {
+        soundIconOn.classList.add('hidden');
+        soundIconOff.classList.remove('hidden');
+      }
+    });
+
+    fsToggle.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+
+    // --- On-screen D-Pad Taps ---
+    document.getElementById('btnUp').addEventListener('pointerdown', (e) => { e.preventDefault(); setDirection(0, -1); });
+    document.getElementById('btnDown').addEventListener('pointerdown', (e) => { e.preventDefault(); setDirection(0, 1); });
+    document.getElementById('btnLeft').addEventListener('pointerdown', (e) => { e.preventDefault(); setDirection(-1, 0); });
+    document.getElementById('btnRight').addEventListener('pointerdown', (e) => { e.preventDefault(); setDirection(1, 0); });
+
+    // --- Keyboard Arrow & WASD Support ---
+    window.addEventListener('keydown', (e) => {
+      switch (e.key) {
+        case 'ArrowUp':
+        case 'w':
+        case 'W':
+          e.preventDefault(); setDirection(0, -1); break;
+        case 'ArrowDown':
+        case 's':
+        case 'S':
+          e.preventDefault(); setDirection(0, 1); break;
+        case 'ArrowLeft':
+        case 'a':
+        case 'A':
+          e.preventDefault(); setDirection(-1, 0); break;
+        case 'ArrowRight':
+        case 'd':
+        case 'D':
+          e.preventDefault(); setDirection(1, 0); break;
+        case ' ':
+          e.preventDefault(); togglePause(); break;
+      }
+    });
+
+    // --- Touch Swipe Gestures (Direct screen control) ---
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const minSwipeDist = 24;
+
+    window.addEventListener('touchstart', (e) => {
+      if (e.touches.length > 0) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+      if (!touchStartX || !touchStartY || e.changedTouches.length === 0) return;
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+
+      const diffX = touchEndX - touchStartX;
+      const diffY = touchEndY - touchStartY;
+
+      if (Math.max(Math.abs(diffX), Math.abs(diffY)) > minSwipeDist) {
+        if (Math.abs(diffX) > Math.abs(diffY)) {
+          // Horizontal
+          if (diffX > 0) setDirection(1, 0);
+          else setDirection(-1, 0);
+        } else {
+          // Vertical
+          if (diffY > 0) setDirection(0, 1);
+          else setDirection(0, -1);
+        }
+      }
+      touchStartX = 0;
+      touchStartY = 0;
+    }, { passive: true });
+
+    // Launch loop on ready
+    window.onload = function() {
+      resizeCanvas();
+      requestAnimationFrame(gameLoop);
+    };
+  </script>
+</body>
+</html>
